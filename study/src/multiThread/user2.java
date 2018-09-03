@@ -10,6 +10,7 @@ public class user2 extends Thread {
 
 	public void run() {
 		calculator.setMemory(50);
+		
 	}
 }
   
