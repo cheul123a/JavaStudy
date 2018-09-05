@@ -17,7 +17,17 @@ public class CompareOperatorExample {
 		char char2 = 'B';
 		boolean result4 = (char1 < char2);
 		System.out.println("result4 : " +result4);
+		System.out.println();
 		
+		int v2 = 1;
+		double v3 = 1.0;
+		System.out.println(v2 == v3);
+		
+		double v4 = 0.1;
+		float v5 = 0.1f;
+		System.out.println(v4 == v5);  //false
+		System.out.println((float)v4 == v5); //true
+		System.out.println((int)(v4*10) == (int)(v5*10));
 		
 	}
 
