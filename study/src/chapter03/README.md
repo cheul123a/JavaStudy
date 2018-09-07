@@ -31,7 +31,7 @@ chapter 03.
 ### if-else if-else 문
 조건문이 여러 개인 if문도 있다. 처음 if 문의 조건식이 false일 경우 다른 조건식의 결과에 따라 실행 블록을 선택할 수 있는데,
 if 블록의 끝에 else if문을 붙이면된다.
-
+ 
     if(조건식1) {
           조건식이1이 true
     } else if(조건식2) {
