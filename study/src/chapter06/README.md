@@ -140,23 +140,67 @@ cat과 animal 변수를 == 연산해보면 true가 나오는데, 참조 변수�
 
 그러나 예외가 있는데, 메소드가 자식 클래스에서 오버라이딩되었다면 자식 클래스의 메소드가 대신 호출된다. 이것은 다형성(Polymorphism)과 관련이 있기 때문에 매우 중요한 성질이므로 잘 알아두어야 한다.
 
+### 필드의 다형성
+
+그렇다면 왜 자동 타입 변환이 필요할까? 그냥 자식 타입으로 사용하면 될 것을 부모 타입으로 변환해서 사용하는 이유가 무엇일까? 그것은 다형성을 구현하는 기술적 방법 때문이다.
+
+다형성이란 동일한 타입을 사용하지만 다양한 결과가 나오는 성질을 말한다. 주로 필드의 값을 다양화함으로써 실행 결과가 다르게 나오도록 구현하는데, 필드의 타입은 변함이 없지만, 실행 도중에 어떤 객체를 필드로저장하느냐에 따라 실행 결과가 달라질 수 있다. 이것이 필드의 다형성이다.
+
+타이어 객체는 언제든지 성능이 좋은 다른 타이어 객체로 교체할 수 있어야 한다. 새로 교체되는 타이어 객체는 기존 타이어와 사용 방법은 동일하지만 실행 결과는 더 우수하게 나와야 할 것이다. 이것을 프로그램으로 구현하기 위해서는 상속과 오버라이딩, 그리고 타입 변환을 이용하는 것이다.
+
+부모 클래스를 상속하는 자식 클래스는 부모가 가지고 있는 필드와 메소드를 가지고 있으니 사용 방법이 동일할 것이고, 자식 클래스는 부모의 메소드를 오버라이딩 해서 메소드의 실행 내용을 변경함으로써 더 우수한 실행 결과가 나오게 할 수 있다.
+
+    class Car{
+      Tire frontLeftTire = new Tire();
+      Tire frontrightTire = new Tire();
+      Tire backLeftTire = new Tire();
+      Tire backrightTire = new Tire();
+      
+      void run() {...}
+    }
+
+Car 클래스는 4개의 Tire 필드를 가지고 있다. Car 클래스로부터 Car 객체를 생성하면 4개의 Tire 필드에 각각 하나씩 Tire 객체가 들어가게 된다. 그런데, frontRightTire와 backLeftTire를 HankookTire와 KumhoTire로 교체할 필요성이 생겼다. 이경우 다음과 같은 코드를 사용해서 교체할 수 있다.
+
+    Car myCar = new Car();
+    myCar.frontRightTire = new HankookTire();
+    myCar.backLeftTire = new KumhoTire();
+    myCar.run();
+    
+Tire 클래스 타입인 frontRightTire와 backLeftTire는 원래 Tire 객체가 저장되어야 하지만, Tire의 자식 객체가 저장되어도 문제가 없다. 왜냐하면 자식 타입은 부모 타입으로 자동 타입 변환이 되기 때문이다.
+
+frontRight와 backLeftTire에 Tire 자식 객체가 저장되어도 Car 객체는 Tire 클래스에 선언된 필드와 메소드만 사용하므로 전혀 문제가 되지 않는다. HankookTire와 KumhoTire는 부모인 Tire의 필드와 메소드를 가지고 있기 때문이다. Car 객체에 run() 메소드가 있고, run() 메소드는 각 Tire 객체의 roll() 메소드를 다음과 같이 호출한다고 가정해보자.
+
+    void run() {
+      frontLeftTire.roll();
+      frontRightTire.roll();
+      backLeftTire.roll();
+      backRightTire.roll();
+    }
+
+frontRightTire와 backLeftTire를 교체하기 전에는 Tire 객체의 roll() 메소드가 호출되지만, HankookTire와 KumhoTire로 교체가 된 후에는 HankookTire와 KumhoTire 객체의 roll() 메소드가 호출된다. 이와 같이 자동 타입 변환을 이용해서 Tire 필드값을 교체함으로써 Car의 run() 메소드 수정 없이도 다양한 roll() 메소드의 실행 결과를 얻게 된다.
 
 
+### 하나의 배열로 객체 관리
+
+이전 예제에서 Car 클래스에 4개의 타이어 객체를 4개의 필드로 각각 저장했다. 우리는 동일한 타입의 값들은 배열로 관리하는 것이 유리하다는 것을 알고 있다. 그렇다면 타이어 객체들도 타이어 배열로 관리하는 것이 코드를 깔끔하게 만들어줄 것이다.
+
+    Class Car {
+      Tire[] tires = {
+        new Tire("앞왼쪽", 6),
+        new Tire("앞오른쪽", 2),
+        new Tire("뒤왼쪽", 3),
+        new Tire("뒤오른쪽", 4),
+      };
+    }
 
 
+frontLeftTire 는 tires[0], frontRightTire는 tires[1], backLeftTire는 tires[2], backRightTire는 tires[3]과 같이 인덱스로 표현되므로 대입이나 제어문에서 활용하기 매우 쉽다. 예를 들어 인덱스 1을 이용해서 앞오른쪽 타이어를 KumhoTire로 교체하기 위해 다음과 같이 작성할 수 있다.
 
+    tires[1] = new KumhoTire("앞오른쪽", 13);
+    
+tires 배열의 각 항목은 Tire 타입이므로 자식 객체인 KumhoTire를 대입하면 자동 타입 변환이 발생하기 때문에 아무런 문제가 없다. 배열의 타입은 Tire이지만 실제 저장 항목이 Tire의 자식 객체라면 모두 가능하다. 상속 관계에 있는 객체들을 배열로 관리하면 제어문에서 가장 많이 혜택을 본다.
 
-
-
-
-
-
-
-
-
-
-
-
+전체 타이어의 roll() 메소드를 호출하는 Car 클래스의 run() 메소드는 다음과 같이 for문으로 작성할 수 있다.
 
 
 
