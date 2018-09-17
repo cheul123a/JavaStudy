@@ -203,10 +203,29 @@ tires 배열의 각 항목은 Tire 타입이므로 자식 객체인 KumhoTire를
 전체 타이어의 roll() 메소드를 호출하는 Car 클래스의 run() 메소드는 다음과 같이 for문으로 작성할 수 있다.
 
 
+    int run() {
+      System.out.println("자동차가 달립니다");
+      for(int i=0; i<tires.length; i++){
+        if(tires[i].roll() == false){
+          stop();
+          return (i+1);
+        }
+      }
+      return 0;
+    }
 
 
+### 매개 변수의 다형성
 
+자동 타입 변환은 필드의 값을 대입할 때에도 발생하지만, 주로 메소드를 호출할 때 많이 발생한다. 메소드를 호출할 때에는 매개 변수의 타입과 동일한 매개값을 지정하는 것이 정석이지만, 매개값을 다양화하기 위해 매개 변수에 자식 타입 객체를 지정할 수도 있다.
 
+    Class Driver {
+      void drive(Vehicle vehicle){
+        vehicle.run();
+      }
+    }
+
+Driver 클래스에는 drive() 메소드가 정의되어 있는데 Vehicle 타입의 매개 변수가 선언되어 있다.
 
 
 
