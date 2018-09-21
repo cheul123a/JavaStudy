@@ -295,109 +295,159 @@ drive() 메소드는 Vehicle 타입을 매개 변수로 선언했지만, Vehicle
 
 매개 변수의 타입이 인터페이스일 경우, 어떠한 구현 객체도 매개값으로 사용할 수 있고, 어떤 구현 객체가 제공되느냐에 따라 메소드의 실행 결과는 다양해질 수 있다.
 
+### 강제 타입 변환(Casting)
+구현 객체가 인터페이스 타입으로 자동 변환하면, 인터페이스에 선언된 메소드만 사용 가능하다는 제약 사항이 따른다. 예를 들어 인터페이스에는 세 개의 메소드가 선언되어 있고, 클래스에는 다섯개의 메소드가 선언되어 있다면, 인터페이스로 호출 가능한 메소드는 세 개뿐이다.   
 
+하지만 경우에 따라서 구현 클래스에 선언된 필드와 메소드를 사용해야 할 경우도 발생한다. 이때 강제 타입 변환을 해서 다시 구현 클래스 타입으로 변환한 다음, 구현 클래스의 필드와 메소드를 사용할 수 있다.
 
 
+		interface Vehicle {
+			void run();
+		}
+		
+		class Bus implements Vehicle {
+			void run() {...}
+			voidr checkFare() {...}
+		}
+		
+		Vehicle vehicle = new Bus();
+		vehicle.run();					//가능
+		vehicle.checkFare();				//불가능
+		
+		Bus bus = (bus)vehicle;
+		bus.run();							//가능
+		bus.checkFare();						//가능
 
 
+### 객체 타입 확인(instanceof)
+강제 타입 변환은 구현 객체가 인터페이스 타입으로 변환되어 있는 상태에서 가능하다. 그러나 어떤 구현 객체가 변환되어 있는지 알 수 없는 상태에서 무작정 변환을 할 경우 예외가 발생할 수도 있다.
 
+		Vehicle vehicle = new Taxi();
+		Bus bus = (Bus)vehicle;
+		//구현 클래스 타입이 다르므로 ClassCastException이 발생
 
+메소드의 매개 변수가 인터페이스로 선언된 경우, 메소드를 호출할 때 다양한 구현 객체들을 매개값으로 지정할 수 있다. 어떤 구현 객체가 지정될지 모르는 상황에서 다음과 같이 매개값을 Bus로 강제 타입 변환하면 ClassCastException이 발생할 수 있다.
 
+		public void drive(Vehicle vehicle){
+			Bus bus = (Bus)vehicle;
+			bus.checkFare();
+			vehicle.run();
+		}
 
+이 경우 상속에서 객체 타입을 확인하기 위해 instanceof 연산자를 사용했던거와 같이 인터페이스 타입에서도 instanceof 연산자를 사용하면 된다.
 
+		if(vehicle instanceof Bus) {
+			Bus bus = (Bus)vehicle
+		}
 
+인터페이스 타입으로 자동 변환된 매개값을 메소드 내에서 다시 구현 클래스 타입으로 강제 타입 변환해야 한다면 반드시 매개값이 어떤 객체인지 instanceof 연산자로 확인하고 안전하게 강제 타입 변환을 해야한다.
 
 
+## 인터페이스 상속
 
+인터페이스도 다른 인터페이스를 상속할 수 있다. 인터페이스는 클래스와는 달리 다중 상속을 허용한다.
 
+		public interface 하위인터페이스 extends 상위인터페이스1, 상위인터페이스2 {...}
 
+하위 인터페이스를 구현하는 클래스는 하위 인터페이스의 메소드뿐만 아니라 상위 인터페이스의 모든 추상 메소드에 대한 실체 메소드를 가지고 있어야 한다.그렇기 때문에 구현 클래스로부터 객체를 생성하고 나서 다음과 같이 하위 및 상위 인터페이스 타입으로 변환이 가능하다.
 
+		 하위인터페이스 변수 = new 구현클래스(...);
+		 하위인터페이스1 변수 = new 구현클래스(...);
+		 하위인터페이스2 변수 = new 구현클래스(...);
 
+하위 인터페이스로 타입 변환이 되면 상, 하위 인터페이스에 선언된 모든 메소드를 사용할 수 있으나, 상위 인터페이스로 타입 변환되면ㅁ 상위 인터페이스에 선언된 메소드만 사용 가능하고 하위인터페이스에 선언된 메소드는 사용할 수 없다.
 
 
+## 디폴트 메소드와 인터페이스 확장
 
+디폴트 메소드는 인터페이스에 선언된 인스턴스 메소드이기 때문에 구현 객체가 있어야 사용할 수 있다. 선언은 인터페이스에서 하고, 사용은 구현 객체를 통해 한다는 것이 어색해 보인다. 디폴트 메소드는 모든 구현 객체에서 공유하는 기본 메소드처럼 보이지만, 사실은 인터페이스에서 디폴트 메소드를 허용한 다른 이유가 있다.
 
 
+### 디폴트 메소드의 필요성
 
+인터페이스에서 디폴트 메소드를 허용한 이유는 기존 인터페이스를 확장해서 새로운 기능을 추가하기 위해서이다. 기존 인터페이스의 이름과 추상 메소드의 변경 없이 디폴트 메소드만 추가할 수 있기 때문에 이전에 개발한 구현 클래스를 그대로 사용할 수 있으면서 새롭게 개발하는 클래스는 디폴트 메소드를 활용할 수 있다.
 
 
+### 디폴트 메소드가 있는 인터페이스 상속
 
+부모 인터페이스에 디폴트 메소드가 정의되어 있을 경우, 자식 인터페이스에서 디폴트 메소드를 활용하는 방법은 다음 세가지가 있다.   
 
++ 디폴트 메소드를 단순히 상속만 받는다.
++ 디폴트 메소드를 재정의해서 실행 내용을 변경한다.
++ 디폴트 메소드를 추상 메소드로 재선언한다.
 
+다음과 같이 추상 메소드와 디폴트 메소드가 선언된 ParentInterface가 있다고 가정해보자.
 
+		public interface ParentInterface{
+			public void method1();
+			public default void method2() {실행문}
+		}
 
+다음 ChildInterface1은 ParentInterface를 상속하고 자신의 추상 메소드인 method3()을 선언한다.
 
+		public interface ChildInterface1 extends ParentInterface{
+			public void method3();
+		}
 
+이 경우 ChildInterface1 인터페이스를 구현하는 클래스는 method1()과 method3()의 실체 메소드를 가지고 있어야 하며 ParentInterface의 method2()를 호출할 수 있다.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		ChildInterface c1 = new ChildInterface1() {
+				@Override
+				public void method1() {실행문}
+				@Override
+				public void method3() {실행문}
+		};
+		
+		c1.method1();
+		c1.method2();
+		c1.method3();
+		}
+
+다음 ChildInterface2는 ParentInterface를 상속하고 ParentInterface의 디폴트 메소드인 method2()를 재정의한다. 그리고 자신의 추상 메소드인 method3()을 선언한다.
+
+		public interface ChildInterface2 extends ParentInterface {
+				@Override
+				public default void method2() {실행문}		//재정의
+				
+				public void method3();
+		}
+
+이 경우도 ChildInterface2 인터페이스를 구현하는 클래스는 method1()과 method3()의 실체 메소드를 가지고 있어야 하며, ChildInterface2에서 재정의한 method2()를 호출할 수 있다.
+
+
+		ChildInterface2 ci2 = new ChildInterface2(){
+				@Override
+				public void method1() {실행문}
+				@Override
+				public void method3() {실행문}
+		};
+	  
+		ci2.method1();
+		ci2.mehotd2();			//ChildInterface2의 method2() 호출
+		ci2.method3();
+
+다음 childInterface3은 ParentInterface를 상속하고 ParentInterface의 디폴트 메소드인 mehtod2()를 추상 메소드로 재선언한다. 그리고 자신의 추상 메소드인 method3()을 선언한다.
+
+		public interface ChildInterface3 extends ParentInterface {
+				@Override
+				public void method2();
+				public void method3();
+		}
+
+이 경우 ChildInterface3 인터페이스를 구현하는 클래스는 method1()과 method2(), method3()의 실체 메소드를 모두 가지고 있어야 한다.
+
+		ChildInterface3 ci3 = new ChildInterface3(){
+				@Override
+				public void method1() {실행문}
+				@Override
+				public void method2() {실행문}
+				@Override
+				public void method3() {실행문}
+		};
+		
+		ci3.method1();
+		ci3.method2();					//ChildInterface3 구현 객체의 method2()호출
+		ci3.method3();
 
 
 
