@@ -48,11 +48,11 @@ chapter08.
 
 		class A {
 				class B {
-						B() {}												//생성자
-						int field1;										//인스턴스 필드
-						//static int field2;					//정적 필드 (x)
-						void method1(){}							//인스턴스 메소드
-						//static void method2(){}			//정적 메소드 (x)
+						B() {}					//생성자
+						int field1;				//인스턴스 필드
+						//static int field2;		//정적 필드 (x)
+						void method1(){}		//인스턴스 메소드
+						//static void method2(){}	//정적 메소드 (x)
 				}
 		}
 A 클래스 외부에서 인스턴스 멤버 클래스 B의 객체를 생성하려면 먼저 A 객체를 생성하고 B 객체를 생성해야 한다.
@@ -69,10 +69,10 @@ A 클래스 외부에서 인스턴스 멤버 클래스 B의 객체를 생성하�
 		
 		class A{
 			static class C {
-				C(){}												//생성자
-				int field1;									//인스턴스 필드
-				static int field2;					//정적 필드
-				void method1(){}						//인스턴스 메소드
+				C(){}						//생성자
+				int field1;				//인스턴스 필드
+				static int field2;		//정적 필드
+				void method1(){}			//인스턴스 메소드
 				static void method2(){}			//정적 메소드
 			}
 		}
@@ -92,10 +92,10 @@ A 클래스 외부에서 정적 멤버 클래스 C의 객체를 생성하기 위
 		void method() {
 			
 			class D {
-				D() {}											//생성자
-				int field1;									//인스턴스 필드
-				//static int field2;				//정적 필드 (x)
-				void method1(){}						//인스턴스 메소드
+				D() {}						//생성자
+				int field1;					//인스턴스 필드
+				//static int field2;		//정적 필드 (x)
+				void method1(){}				//인스턴스 메소드
 				//static void method2(){}		//정적 메소드(x)
 			}
 			D d = new D();
@@ -116,7 +116,34 @@ A 클래스 외부에서 정적 멤버 클래스 C의 객체를 생성하기 위
 
 ### 바깥 필드와 메소드에서 사용 제한
 
+멤버 클래스가 인스턴스 또는 정적으로 선언됨에 따라 바깥 클래스의 필드와 메소드에 사용 제한이 생긴다. 
 
+	public class A {
+		//인스턴스 필드
+		B field1 = new B();
+		C field2 = new C();
+		
+		//인스턴스 메소드
+		void method2(){
+			B var1 = new B();
+			C var2 = new C();
+		}
+		
+		//정적 필드 초기화
+		static B field3 = new B();   //(x)
+		static C field4 = new C();
+		
+		//정적 메소드
+		static void method2(){
+			B var1 = new B();					//(x)
+			C var2 = new C();
+		}
+		
+		//인스턴스 멤버 클래스
+		class B{}
+		//정적 멤버 클래스
+		class C{}
+		}
 
 
 
