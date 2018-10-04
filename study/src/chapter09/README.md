@@ -42,12 +42,29 @@ data 변수는 null 값을 가지고 있기 때문에 String 객체를 참조하
 
 배열에서 인덱스 범위를 초과하여 사용할 경우 실행 예외인 java.lang.ArrayIndexOutOf-BoundsException이 발생한다. 예를 들어 길이가 3인 int[] arr = new int[3] 배열을 선언했다면, 배열 항목을 지정하기 위해 arr[0]~arr[2]를 사용할 수 있다. 하지만 arr[3]을 사용하면 인덱스 범위를 초과했기 때문에 ArrayIndexOutOfBoundsException이 발생한다.
 
+		String data1 = args[0];
+		String data2 = args[1];
+		
+		System.out.println("args[0]: " + data1);
+		System.out.println("args[1]: " + data2);
+
+위 예제를 실행하면 ArrayIndexOutOfBoundsException이 발생한다. 그 이유는 두개의 실행 매개값을 주지 않았기 때문에 args[0], args[1]과 같이 인덱스를 사용할 수 없다.
+
+이클립스의 메뉴에서 [Run] -> [Run Configurations]를 선택후, [Arguments] 탭의 [Program arguments] 입력란에 두 개의 매개값을 입력하고 실행하면 예외가 발생하지 않는다.
+
+배열값을 읽기 전에 배열의 길이를 먼저 조사하여 실행 매개값이 없거나 부족 할 경우 조건문을 이용해서 사용자에게 실행 방법을 알려주면 ArrayIndexOutOfBoundsException을 예방할 수 있다.
+
+### NumberFormatException
+
+프로그램을 개발하다 보면 문자열로 되어 있는 데이터를 숫자로 변경하는 경우가 자주 발생한다. 문자열을 숫자로 변환하는 방법은 여러 가지가 있지만 가장 많이 사용되는 코드는 다음과 같다.
+
+		Integer.parseInt(String s) 주어진 문자열을 정수로 변환해서 int 타입으로 리턴
+		Double.parseDouble(String s) 주어진 문자열을 실수로 변환해서 double 타입으로 리턴
+
+Integer와 Double은 포장(Wrapper) 클래스라고 하는데, 이 클래스의 정적 메소드인 parseXXX() 메소드를 이용하면 문자열을 숫자로 변환할 수 있다. 이 메소드들은 매개값인 문자열이 숫자로 변환될 수 있다면 숫자를 리턴하지만, 숫자로 변환될 수 없는 문자가 포함되어 있다면 java.lang.NumberFormatException을 발생시킨다.
 
 
-
-
-
-
+### ClassCastException
 
 
 
