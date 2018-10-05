@@ -66,14 +66,46 @@ Integer와 Double은 포장(Wrapper) 클래스라고 하는데, 이 클래스의
 
 ### ClassCastException
 
+타입 변환(Casting)은 상위 클래스와 하위 클래스 간에 발생하고 구현 클래스와 인터페이스 간에도 발생한다. 이러한 관계가 아니라면 클래스는 다른 클래스로 타입 변환할 수 없다. 억지로 타입 변환을 시도할 경우 ClassCastException이 발생한다.
 
+다음은 올바른 타입 변환을 보여준다.
 
+		Animal animal = new Dog();
+		Dog dog = (Dog)animal;
+		
+		RemoteControl rc = new Television();
+		Television tv = (Television)rc;
+		
+그러나 다음과 같이 타입 변환을 하면 ClassCastException이 발생한다. 대입된 객체가 아닌 다른 클래스 타입으로 타입 변환했기 때문이다.
 
+		Animal animal = new Dog();
+		Cat cat = (Cat) animal;
+		
+		RemoteControl rc = new Television();
+		Audio audio = (Audio)rc;
 
+ClassCastException을 발생시키지 않으려면 타입 변환 전에 타입 변환이 가능한지 instanceof 연산자로 확인하는 것이 좋다. instanceof 연산의 결가가 true 이면 좌항 객체를 우향 타입으로 변환이 가능하다는 뜻이다.
 
+		
+		if(animal instanceof Dog){
+				Dog dog = (Dog)animal;
+		}else if(animal instanceof Cat){
+				Cat cat = (Cat)animal;
+		}
+		
 
+## 예외 처리 코드
+프로그램에서 예외가 발생했을 경우 프로그램의 갑작스러운 종료를 막고, 정상 실행을 유지할 수 있도록 처리하는 코드를 예오이 처리 코드라고 한다. 자바 컴파일러는 소스 파일을 컴파일할 때 일반 예외가 발생할 가능성이 있는 코드를 발견하면 컴파일 오류를 발생시켜 개발자로 하여금 강제적으로 예외 처리 코드를 작성하도록 요구한다.
 
+그러나 실행 예외는 컴파일러가 체크해주지 않기 때문에 예외 처리 코드를 개발자의 경험을 바탕으로 작성해야 한다. 예외 처리 코드는 try-catch-finally 블록을 이용한다. try-catch-finally 블록은 생성자 내부와 메소드 내부에서 작성되어 일반 예외와 실행예외가 발생할 경우 에외 처리를 할 수 있도록 해준다.
 
+<img src="http://postfiles15.naver.net/20160525_158/mals93_1464112743040YNCp5_PNG/trycatch.png?type=w773"></img>
+
+try 블록에는 예외 발생 가능 코드가 위치한다. try 블록의 코드가 예외 발생 없이 정상 실행되면 catch 블록의 코드는 실행되지 않고 finally 블록의 코드를 실행한다. 만약 try 블록의 코드에서 예외가 발생하면 즉시 실행을 멈추고 catch 블록으로 이동하여 예외 처리 코드를 실행한다. 그리고 finally 블록의 코드를 실행한다. 
+
+finally 부분은 옵션으로 생략 가능하다. 예외 발생 여부와 상관없이 항상 실행할 내용이 있을 경우에만 finally 블록을 작성해 주면 된다. try 블록과 catch 블록에서 return 문을 사용하더라도 finally 블록은 항상 실행된다.
+
+class.forName() 메소드는 매개값으로 주어진 클래스가 존재하면 Class 객체를 리턴하지만, 존재하지 않으면 ClassNotFoundException 예외를 발생시킨다. ClassNotFoundException 예외는 일반 예외이므로 컴파일러는 개발자로 하여금 예외 처리 코드를 다음과 같이 작성하도록 요구한다.
 
 
 
