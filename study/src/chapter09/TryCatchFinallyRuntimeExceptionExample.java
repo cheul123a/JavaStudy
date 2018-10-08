@@ -7,6 +7,7 @@ public class TryCatchFinallyRuntimeExceptionExample {
 		String data2 = null;
 		
 		try {
+			int q = 1;
 			data1 = args[0];
 			data2 = args[1];
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -25,6 +26,7 @@ public class TryCatchFinallyRuntimeExceptionExample {
 		} catch (NumberFormatException e) {
 			System.out.println("숫자로 변환할 수 없습니다.");
 			System.out.println("다시 실행하세요.");
+			
 		}finally {
 			System.out.println("이용해 주셔서 감사합니다.");
 		}
