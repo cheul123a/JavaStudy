@@ -253,23 +253,60 @@ main() 메소드에서도 throws 키워드를 사용해서 예외를 떠넘길 �
 main() 메소드에서 throws Exception을 붙이는 것은 좋지 못한 예외 처리 방법이다. 프로그램 사용자는 프로그램이 알수 없는 예외 내용을 출력하고 종료되는 것을 좋아하지 않는다. 그렇기 때문에 main()에서 try-catch 블록으로 예외를 최종 처리하는 것이 바람직하다.
 
 ## 사용자 정의 예외와 예외 발생
+프로그램을 개발하다 보면 자바 표준 API 에서 제공하는 예외 클래스만으로는 다양한 종류의 예외를 표현할 수가 없다. 예를 들어 은행 업무를 처리하는 프로그램에서 잔고보다 더 많은 출금 요청이 들어왔을 경우 오류가 되며, 프로그램은 잔고 부족 예외를 발생시킬 필요가 있다. 그러나 잔고 부족 예외는 자바 표준 API에 는 존재하지 않는다. 잔고 부족 예외와 같이 애플리케이션 서비스와 관련된 예외를 애플리케이션 예외(Application Exception)라고 한다.
 
 
+### 사용자 정의 예외 클래스 선언
 
+사용자 정의 예외 클래스는 컴파일러가 체크하는 일반 예외로 선언할 수도 있고, 컴파일러가 체크하지 않는 실행 예외로 선언할 수도 있다. 일반 예외로 선언할 경우 Exception을 상속하면 되고, 실행 예외로 선언할 경우에는 RuntimeException을 상속하면 된다.
 
+		public class XXXException extends [Exception | RuntimeException] {
+			public XXXException() { }
+			public XXXException(String message) { super(message); }
+		}
 
+사용자 정의 예외 클래스 이름은 Exception으로 끝나는 것이 좋다. 사용자 정의 예외 클래스도 필드, 생성자, 메소드 선언들을 포함할 수 있지만 대부분 생성자 선언만을 포함한다. 생성자는 두 개를 선언하는 것이 일반적인데, 하나는 매개 변수가 없는 기본 생성자이고, 다른 하나는 예외 발생 원인(예외 메시지)을 전달하기 위해 String 타입의 매개 변수를 갖는 생성자이다.
 
+String 타입의 매개 변수를 갖는 생성자는 상위 클래스의 생성자를 호출하여 예외 메시지를 넘겨준다. 예외 메시지의 용도는 catch {} 블록의 예외 처리 코드에서 이용하기 위해서이다. 다음은 잔고 부족 예외를 사용자 정의 예외 클래스로 선언한 것이다.
 
+		public class BalanceInsufficientException extends Exception{
+			public BalanceInsufficientException() { }
+			public BalanceInsufficientException(String message) {
+				super(message);
+			}
+		}
 
+### 예외 발생시키기
+사용자 정의 예외 또는 자바 표준 예외를 코드에서 발생시키는 방법은 다음과 같다.
 
+		throw new XXXException();
+		throw new XXXException("메시지");
 
+예외 객체를 생성할 때는 기본 생성자 또는 예외 메시지를 갖는 생성자 중 어떤 것을 사용해도 된다. 만약 catch 블록에서 예외 메시지가 필요하다면 예외 메시지를 갖는 생성자를 이용해야 한다. 예외 발생 코드를 가지고 있는 메소드는 내부에서 try-catch 블록으로 처리할 수 있지만, 대부분은 자신을 호출한 곳에서 예외를 처리하도록 throws 키워드로 예외를 떠넘긴다.
+		
+		public void method() throws XXXException {
+			throw new XXXException("메시지");
+		}
 
+그렇기 때문에 throws 키워드를 포함하고 있는 메소드는 호출한 곳에서 다음과 같이 예외 처리를 해주어야 한다.
 
+		try {
+			method();
+		} catch(XXXException e){
+				//예외 처리
+		}
 
+## 예외 정보 얻기
+try 블록에서 예외가 발생되면 예외 객체는 catch 블록의 매개 변수에서 참조하게 되므로 매개 변수를 이용하면 예외 객체의 정보를 알 수 있다. 모든 예외 객체는 Exception 클래스를 상속하기 때문에 Exception이 가지고 있는 메소드들을 모든 예외 객체에서 호출할 수 있다. 그중에서도 가장 많이 사용되는 메소드는 get Message()와 printStackTrace()이다. 예외를 발생시킬 때 다음과 같이 String 타입의 메시지를 갖는 생성자를 이용하였다면, 메시지는 자동적으로 예외 객체 내부에 저장된다.
 
+		throw new XXXException("예외 메시지");
 
+예외 메시지의 내용에는 왜 예외가 발생했는지에 대한 간단한 설명이 포함된다. 좀 더 상세한 원인을 세분화하기 위해 예외 코드를 포함하기도 하는데, 예를 들어 데이터베이스에서 발생한 오류들은 예외 코드가 예외 메시지로 전달된다. 이와 같은 메시지는 다음과 같이 catch 블록에서 getMessage() 메소드의 리턴값으로 얻을 수 있다.
 
-
+		catch(Exception e){
+			String message = e.getMessage();
+		}
+pirntStackTrace()는 메소드 이름에서도 알 수 있듯이 예외 발생 코드를 추적해서 모두 콘솔에 출력한다. 어떤 예외가 어디에서 발생했는지 상세하게 출력해주기 때문에 프로그램을 테스트하면서 오류를 찾을 때 활용된다.
 
 
 
