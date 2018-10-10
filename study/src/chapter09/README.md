@@ -107,6 +107,239 @@ finally 부분은 옵션으로 생략 가능하다. 예외 발생 여부와 상�
 
 class.forName() 메소드는 매개값으로 주어진 클래스가 존재하면 Class 객체를 리턴하지만, 존재하지 않으면 ClassNotFoundException 예외를 발생시킨다. ClassNotFoundException 예외는 일반 예외이므로 컴파일러는 개발자로 하여금 예외 처리 코드를 다음과 같이 작성하도록 요구한다.
 
+		try {
+			Class clazz = Class.forName("java.lang.String2");
+		}catch(ClassNotFoundException e){
+			System.out.println("클래스가 존재하지 않습니다.");
+		}
+
+위 예제를 실행시키면 try 블록에서 ClassNotFoundException이 발생하는데, 이것은 java.lang.String2 클래스가 존재하지 않기 때문이다. 예외가 발생하면 catch 블록을 실행해서 예외 처리를 하게 된다. ArrayIndexOutOfBoundsException이나, NumberFormatException과 같은 실행 예외는 컴파일러가 예외 처리 코드를 체크하지 않기 때문에 개발자의 경험에 의해 예외 처리를 작성해주어야 한다.
+
+## 예외 종류에 따른 처리 코드
+
+### 다중 catch
+try 블록 내부는 다양한 종류의 예외가 발생할 수 있다. 이 경우, 발생되는 예외별로 예외 처리 코드를 다르게 하려면 다중 catch 블록을 작성하여 처리할 수 있다. catch 블록의 예외 클래스 타입은 try 블록에서 발생된 예외의 종류를 말하는데, try 블록에서 해당 타입의 예외가 발생하면 catch 블록을 실행하도록 되어 있다.
+
+		try{
+			ArrayIndexOutOfBoundsException 발생  -> 예외 처리1 실행
+			
+			NumberFormatException 발생 -> 예외 처리2 실행
+			
+		} catch(ArrayIndexOutOfBoundsException e){
+			 예외 처리1
+		} catch(NumberFormatException e) {
+			 예외 처리2
+		}
+
+catch 블록이 여러 개라 할지라도 단 하나의 catch 블록만 실행된다. 그 이유는 try 블록에서 동시 다발적으로 예외가 발생하지 않고, 하나의 예외가 발생하면 즉시 실행을 멈추고 해당 catch 블록으로 이동하기 때문이다.
+
+### catch 순서
+다중 catch 블록을 작성할 때 주의할 점은 상위 예외 클래스가 하위 예외 클래스보다 아래쪽에 위치 해야 한다. try 블록에서 예외가 발생했을 때, 예외를 처리해줄 catch 블록은 위에서부터 차례대로 검색된다. 만약 상위 예외 클래스의 catch 블록이 위에 있다면, 하위 에외 클래스의 catch 블록은 실행되지 않는다. 왜냐하면 하위 예외는 상위 예외를 상속 했기 때문에 상위 예외 타입도 되기 때문이다.
+
+		try{
+			ArrayIndexOutOfBoundsException 발생 -> 예외 처리1 실행
+			
+			 NumberFormatException  발생 -> 예외 처리1 실행
+		
+		} catch(Exception e){
+			 예외 처리1
+		} catch(ArrayIndexOutOfBoundsException e) {
+			 예외 처리2 
+		}
+
+ArrayIndexOutOfBoundsException과 NumberFormatException은 모두 Exception을 상속받기 때문에 첫 번째 catch 블록만 선택되어 실행된다. 두 번째 catch 블록은 어떤 경우에라도 실행되지 않는다. 위 코드는 다음과 같이 수정해야 한다.
+
+		try{
+				ArrayIndexOutOfBoundsException 발생  -> 예외 처리1 실행
+				 다른 Exception 발생 -> 예외처리2
+			
+			} catch(ArrayIndexOutOfBoundsException e){
+				 예외 처리1
+			} catch(Exception e) {
+				 예외 처리2
+			}
+
+try 블록에서 ArrayIndexOutOfBoundsException이 발생하면 첫 번째 catch 블록을 실행하고, 그 밖의 다른 예외가 발생하면 두 번째 catch 블록을 실행한다.
+
+### 멀티 catch
+자바 7부터 하나의 catch 블록에서 여러 개의 예외를 처리할 수 있도록 멀티(multi) catch 기능을 추가했다. 다음은 멀티 catch 블록을 작성하는 방법을 보여준다. catch 괄호() 안에 동일하게 처리하고 싶은 예외를 |로 연결하면 된다.
+
+		try{
+			ArrayIndexOutOfBoundsException 또는 NumberFormatException 발생  ->  예외 처리1
+			
+			Exception 발생  ->  예외 처리2
+			
+		} catch(ArrayIndexOutOfBoundsException | NumberFormatException e) {
+			 예외 처리1
+		} catch(Exception e){
+			 예외 처리2
+		}
+
+## 자동 리소스 닫기
+자바 7에서 새로 추가된 try-with-resources를 사용하면 예외 발생 여부와 상관없이 사용했던 리소스 객체(각종 입출력 스트림, 서버 소켓, 소켓, 각종 채널)의 close() 메소드를 호출해서 안전하게 리소스를 닫아준다. 리소스란 여러 가지 의미가 있겠지만 여기서는 데이터를 읽고 쓰는 객체라고 생각해 두자.
+
+다음은 리소스 객체를 안전하게 닫기 위해 자바6 이전까지 사용해 왔던 코드이다.
+
+	 FileInputStream fis = null;
+	 try {
+	 		fis = newFileInputStream("file.txt");
+			...
+	 } catch(IOException e){
+	 		...
+	 } finally {
+	 		if(fis != null){
+					try{
+						fis.close();
+						}catch(IOException e){ }
+			}
+	 }
+
+finally 블록에서 다시 try-catch를 사용해서 close() 메소드를 예외 처리해야 하므로 다소 복잡 하게 보인다. 자바 7에서 추가된 try-with-resources를 사용하면 다음과 같이 간단해진다.
+
+	try(FileInputStream fis = new FileInputStream("file.txt")){
+		...
+	} catch(IOException e){
+		...
+	}
+
+close()를 명시적으로 호출한 곳이 없다. try 블록이 정상적으로 실행을 완료했거나 도중에 예외가 발생하게 되면 자동으로 FileOutputStream의 close() 메소드가 호출된다. try {} 에서 예외가 발생하면 우선 close()로 리소스를 닫고 catch 블록을 실행한다. 만약 복수 개의 리소스를 사용해야 한다면 다음과 같이 작성할 수 있다.
+
+		try(
+					FileInputStream fis = new FileInputStream("file1.txt");
+					FileOutputStream fos = new FileOutputStream("file2.txt");
+		) {
+				...
+			} catch(IOException e){
+				...
+			}
+
+try-with-resources를 사용하기 위해서는 조건이 있는데, 리소스 객체는 java.lang.AutoCloseable 인터페이스를 구현하고 있어야 한다. AutoCloseable에는 close() 메소드가 정의되어 있는데 try-with-resources는 바로 이 close() 메소드를 자동 호출한다. API 도큐먼트에서 AutoCloseable 인터페이스를 찾아 "All Known Implementing Classes:"를 보면 try-with-resources와 함께 사용할 수 있는 리소스가 어떤 것이 있는지 알 수 있다.
+
+## 예외 떠넘기기
+메소드 내부에서 예외가 발생할 수 있는 코드를 작성할 때 try-catch 블록으로 예외를 처리하는 것이 기본이지만, 경우에 따라서는 메소드를 호출한 곳으로 예외를 떠넘길 수도 있다. 이때 사용하는 키워드가 throws이다. throws 키워드는 메소드 선언부 끝에 작성되어 메소드에서 처리하지 않은 예외를 호출한 곳으로 떠넘기는 역할을 한다. throws 키워드 뒤에는 떠넘길 예외 클래스를 쉼표로 구분해서 나열해주면 된다.
+
+		리턴타입 메소드명(매개변수,...) throws 예외클래스1, 예외클래스2, ...{ }
+
+발생할 수 있는 예외의 종류별로 throws 뒤에 나열하는 것이 일반적이지만, 다음과 같이 throws Exception만으로 모든 예외를 간단히 떠넘길 수도 있다.
+
+		리턴타입 메소드명(매개변수,...) throws Exception { }
+
+throws 키워드가 붙어있는 메소드는 반드시 try 블록 내에서 호출되어야 한다. 그리고 catch 블록에서 떠넘겨 받은 예외를 처리해야 한다. 다음 코드는 throws 키워드가 있는 method2()를 method1()에서 호출하는 방법을 보여준다.
+
+		public void method1(){
+			try{
+				method2();
+				 } catch(ClassNotFoundException e){
+				system.out.println("클래스가 존재하지 않습니다.");
+			}
+		}
+		public void method2() throws ClassNotFoundException {
+			Class clazz = Class.forName("java.lang.String2");
+		}
+
+method1()에서도 try-catch 블록으로 예외를 처리하지 않고 throws 키워드로 다시 예외를 떠넘길 수 있다. 그러면 method1()을 호출하는 곳에서 결국 try-catch 블록을 사용해서 예외를 처리해야 한다.
+
+		public void method1() throws ClassNotFoundException {
+			method2();
+		}
+
+자바 API 도큐먼트를 보면 클래스 생성자와 메소드 선언부에 throws 키워드가 붙어있는 것을 흔히 볼 수 있다. 이러한 생성자와 메소드를 사용하고 싶다면, 반드시 try-catch 블록으로 예외 처리를 해야 한다. 아니면 throws를 다시 사용해서 예외를 호출한 곳으로 떠넘겨야 한다. 그렇지 않으면 컴파일 오류가 발생한다.
+
+main() 메소드에서도 throws 키워드를 사용해서 예외를 떠넘길 수 있는데, 결국 JVM이 최종적으로 예외 처리를 하게 된다. jVM은 예외의 내용을 콘솔(Console)에 출력하는 것으로 예외 처리를 한다.
+
+		public static void main(String[] args) throws ClassNotFoundException{
+			findClass();
+		}
+main() 메소드에서 throws Exception을 붙이는 것은 좋지 못한 예외 처리 방법이다. 프로그램 사용자는 프로그램이 알수 없는 예외 내용을 출력하고 종료되는 것을 좋아하지 않는다. 그렇기 때문에 main()에서 try-catch 블록으로 예외를 최종 처리하는 것이 바람직하다.
+
+## 사용자 정의 예외와 예외 발생
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
