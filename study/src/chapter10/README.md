@@ -64,16 +64,38 @@ equals() 메소드를 재정의할 때에는 매개값(비교 객체)이 기준 
 <img src = "https://t1.daumcdn.net/cfile/tistory/231DCB4A569703352B"></img>
 
 
+### 객체 문자 정보(toString())
+Object 클래스의 toString() 메소드는 객체의 문자 정보를 리턴한다. 객체의 문자 정보란 객체를 문자열로 표현한 값을 말한다. 기본적으로 Object 클래스의 toString() 메소드는 "클래스명@16진수해시코드"로 구성된 문자 정보를 리턴한다.
+
+		Object obj = new Object();
+		System.out.println( obj.toString() );
+		
+		실행결과
+		java.lang.Object@de6ced
+
+Object의 toString() 메소드의 리턴값은 자바 애플리케이션에서는 별 값어치가 없는 정보이므로 Object 하위 클래스는 toString() 메소드를 재정의(오버라이딩)하여 간결하고 유익한 정보를 리턴하도록 되어 있다. 예를 들어 java.util 패키지의 Date 클래스는 toString() 메소드를 재정의하여 현재 시스템의 날짜와 시간 정보를 리턴한다. 그리고 String 클래스는 toString() 메소드를 재정의해서 저장하고 있는 문자열을 리턴한다.
+
+우리는 지금까지 콘솔에 출력하기 위해 System.out.println() 메소드를 사용해 왔다. 이 메소드의 매개값은 콘솔에 출력할 내용인데, 매개값이 기본 타입(byte, double, boolean 등)일 경우, 해당 값을 그대로 출력한다. 만약 매개값으로 객체를 주면 객체의 toString() 메소드를 호출해서 리턴값을 받아 출력하도록 되어있다.
+
+### 객체 복제(clone())
+객체 복제는 원본 객체의 필드값과 동일한 값을 가지는 새로운 객체를 생성하는 것을 말한다. 객체를 복제하는 이유는 원본 객체를 안전하게 보호하기 위해서이다. 신뢰하지 않는 영역으로 원본 객체를 넘겨 작업할 경우 원본 객체의 데이터가 훼손될 수 있기 때문에 복제된 객체를 만들어 신뢰하지 않는 영역으로 넘기는 것이 좋다. 복제된 객체의 데이터가 훼손되더라도 원본 객체는 아무런 영향을 받지 않기 때문에 안전하게 데이터를 보호할 수 있게 된다. 객체를 복제하는 방법에는 얕은 복제와 깊은 복제가 있다.
+
+**얕은 복제(thin clone)**
+
+얕은 복제(thin clone)란 단순히 필드값을 복사해서 객체를 복제하는 것을 말한다. 필드값만 복제하기 때문에 필드가 기본 타입일 경우 값 복사가 일어나고, 필드가 참조 타입일 경우에는 객체의 번지가 복사된다. 
+
+예를 들어 원본 객체에 int 타입의 필드와 배열 타입의 필드가 있을 경우, 얕은복제된 객체의 필드값은 가음과 같다.
+
+<img src = "https://t1.daumcdn.net/cfile/tistory/234F0D4F569725C104"></img>
+
+Object의 clone() 메소드는 자신과 동일한 필드값을 가진 얕은 복제된 객체를 리턴한다. 이 메소드로 객체를 복제하려면 원본 객체는 반드시 java.lang.Cloneable 인터페이스를 구현하고 있어야한다. 메소드 선언이 없음에도 불구하고 Cloneable 인터페이스를 명시적으로 구현하는 이유는 클래스 설계자가 복제를 허용한다는 의도적인 표시를 하기 위해서이다. 클래스 설계자가 복제를 허용 하지 않는다면 Cloneable 인터페이스를 구현하지 않으면 된다. Cloneable 인터페이스를 구현하지 않으면 clone() 메소드를 호출할 때 CloneNotSupportedException 예외가 발생하여 복제가 실패된다. clone()은 CloneNotSupportedException 예외 처리가 필요한 메소드이기 때문에 try-catch 구문이 필요하다. 
+
+		try {
+			Object obj = clone();
+		} catch(CloneNotSupportedException e) {  }
 
 
-
-
-
-
-
-
-
-
+**깊은 복제(deep clone)
 
 
 
