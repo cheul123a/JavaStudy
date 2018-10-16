@@ -116,8 +116,18 @@ Object의 clone() 메소드는 자신과 동일한 필드값을 가진 얕은 �
 프로그램이 종료될 때 즉시 자원을 해제하거나 즉시 데이터를 최종 저장해야 한다면, 일반 메소드에서 작성하고 프로그램이 종료될 때 명시적으로 메소드를 호출하는 것이 좋다.
 
 ## Objects 클래스
+Object와 유사한 이름을 가진 java.util.Objects 클래스는 객체 비교, 해시코드 생성, null 여부, 객체 문자열 리턴 등의 연산을 수행하는 정적 메소드들로 구성된 Object의 유틸리티 클래스이다. 다음은 Objects 클래스가 가지고 있는 정적 메소드들이다.
 
+<img src = "https://t1.daumcdn.net/cfile/tistory/2602984756972F8B14"></img>
 
+### 객체비교(compare(T a, T b, Comparator<T>c))
+Objects,compare(T a, T b, Comparator<T>c) 메소드는 두 객체를 비교자(Comparator)로 비교해서 int 값을 리턴한다. java.util.Comparator<T>는 제네릭 인터페이스 타입으로 두 객체를 비교하는 compare(T a, T b) 메소드가 정의되어 있다. compare() 메소드의 리턴 타입은 int인데, a가 b보다 작으면 음수, 같으면 0 크면 양수를 리턴하도록 구현 클래스를 만들어야 한다.
+	
+			public interface COmparator<T> {
+					int compare(T a, T b)
+			}
+
+다음 예제는 학생 객체에서 학생 번호로 비교하는 StudentComparator 구현 클래스를 작성한 것이다. a의 sno가 작으면 -1, 같으면0, 크면 1을 리턴하도록 했다.
 
 
 
