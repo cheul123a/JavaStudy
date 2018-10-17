@@ -129,31 +129,64 @@ Objects,compare(T a, T b, Comparator<T>c) 메소드는 두 객체를 비교자(C
 
 다음 예제는 학생 객체에서 학생 번호로 비교하는 StudentComparator 구현 클래스를 작성한 것이다. a의 sno가 작으면 -1, 같으면0, 크면 1을 리턴하도록 했다.
 
+		public class StudentComparator implements Comparator<Student>{
+			@Override
+			public int compare(Student o1, Student o2) {
+				return Integer.compare(o1.sno, o2.sno);
+				}
+		}
 
+### 동등 비교(equals()와 deepEquals())
+Objects.equals(Object a, Object b)는 두 객체의 동등을 비교한다. 특이한 점은 a와 b가 모드 null일 경우 true를 리턴한다는 점이다. a와 b가 null이 아닌 경우는 a.equals(b)의 결과를 리턴한다.
 
+Objetcts.deepEquals(Object a, Objectb) 역시 두 객체의 동등을 비교하는데, a와 b가 서로 다른 배열일 경우, 항목 값이 모두 같다면 true를 리턴한다. 이것은 Arrays.deepEquals(Object[] a, Object[] b)와 동일하다.
 
+<img src = "https://t1.daumcdn.net/cfile/tistory/26608F4756972F913F"></img>
 
+### 해시코드 생성(hash(), hashCode())
+Objects.hash(Object... values) 메소드는 매개값으로 주어진 값들을 이용해서 해시 코드를 생성하는 역할을 하는데, 주어진 매개값들로 배열을 생성하고 Arrays.hashCode(Object[])를 호출해서 해시코드를 얻고 이 값을 리턴한다. 
 
+이 메소드는 클래스가 hashCode()를 재정의할 때 리턴값을 생성하기 위해 사용하면 좋다. 클래스가 여러 가지 필드를 가지고 있을 때 이 필드들로부터 해시코드를 생성하게 되면 동일한 필드값을 가지는 객체는 동일한 해시코드를 가질 수 있다.
 
+		@Override
+		public int hashCode(){
+			return Objects.hash(field1,field2,field3);
+		}
 
+Objects.hashCode(Object o)는 매개값으로 주어진 객체의 해시코드를 리턴하기 때문에 o.hashCode()의 리턴값과 동일하다. 차이점은 매개값이 null이면 0을 리턴한다.
 
+### 널 여부 조사(isNull(), nonNull(), requireNonNull())
+Objects.isNull(Object obj)는 매개값이 null 일경우 true를 리턴한다. 반대로 nonNull(Object obj)는 매개값이 not null일 경우 true를 리턴한다. requireNonNull()는 다음 세가지로 오버로딩 되어있다.
 
+<img src = "http://mblogthumb3.phinf.naver.net/20160529_202/mals93_14645321616517e5ba_PNG/requireNonNull.png?type=w800"></img>
 
+첫 번째 매개값이 not null이면 첫 번째 매개값을 리턴하고, null이면 모두 NullPointerException을 발생시킨다. 두 번째 매개값은 NullPointerException의 예외 메시지를 제공한다.
 
+### 객체 문자 정보(to String())
+Objects.toString()은 객체의 문자 정보를 리턴하는데, 다음 두 가지로 오버로딩 되어있다.
 
+<img src = "https://t1.daumcdn.net/cfile/tistory/23598D4756972F950C"></img>
 
+첫 번째는 매개값이 not null 이면 toString()으로 얻은 값을 리턴하고, null이면 "null" 또는 두 번째 매개값인 nullDefault를 리턴한다.
 
+## System 클래스
+자바 프로그램은 운영체제상에서 바로 실행되는 것이 아니라 JVM 위에서 실행된다. 따라서 운영체제의 모든 기능을 자바 코드로 직접 접근하기란 어렵다. 하지만 java.lang 패키지에 속하는 System 클래스를 이용하면 운영체제의 일부 기능을 이용할 수 있다. 즉, 프로그램 종료, 키보드로부터 입력, 모니터로 출력, 메모리 정리, 현재 시간 읽기, 시스템 프로퍼티 읽기, 환경 변수 읽기 등이 가능하다. System 클래스의 모든 필드와 메소드는 정적(static) 필드와 정적(static) 메소드로 구성되어 있다.
 
+### 프로그램 종료(exit())
+경우에 따라서는 강제적으로 JVM을 종료시킬 때도 있다. 이때 System 클래스의 exit() 메소드를 호출하면 된다. exit() 메소드는 현재 실행하고 있는 프로세스를 강제 종료시키는 역할을 한다. exit() 메소드는 int 매개값을 지정하도록 되어 있는데, 이 값을 종료 상태값이라고 한다. 일반적으로 정상 종료일 경우 0으로 지정하고 비정상 종료일 경우 0 이외의 다른 값을 준다.
 
+		System.exit(0);
 
+어떤 값을 주더라도 종료가 되는데, 만약 특정 값이 입력되었을 경우에만 종료하고 싶다면 자바의 보안 관리자를 직접 설정해서 상태값을 확인하면 된다. System.exit()가 실행되면 보안 관리 자의 checkExit() 메소드가 자동 호출되는데, 이 메소드에서 종료 상태값을 조사해서 특정 값이 입력되지 않으면 SecurityException을 발생시켜 System.exit()를 호출한 곳에서 예외 처리를 할 수 있도록 해준다. checkExit()가 정상적으로 실행되면 JVM은 종료가 된다. 다음은 종료 상태 값으로 5가 입력되면 JVM을 종료하도록 보안 관리자를 설정한다.
 
-
-
-
-
-
-
-
+		System.setSecurityManager(new SecurityManager(){
+				@Override
+				public void checkExit(int status) {
+					if(status != 5) {
+							throw new SecurityException();
+					}
+				}
+		});
 
 
 
